@@ -8,7 +8,8 @@ const options = {
 
 const formatTime = (timestamp) => {
   const date = new Date(timestamp * 1000);
-  return date.toLocaleTimeString();
+  const options = { hour: "2-digit", minute: "2-digit", hour12: true };
+  return date.toLocaleTimeString(undefined, options);
 };
 
 const getweather = (city) => {
@@ -50,7 +51,28 @@ function fetchWeatherForCities() {
     { name: "Kolkata", row: document.getElementById("rowKolkata") },
   ];
 
-  cities.forEach((city) => fetchWeather(city.name, city.row));
+  cities.forEach((city) => {
+    fetch(
+      "https://weather-by-api-ninjas.p.rapidapi.com/v1/weather?city=" +
+        city.name,
+      options
+    )
+      .then((response) => response.json())
+      .then((response) => {
+        const row = city.row;
+        // Populate data in the corresponding row cells
+        row.cells[1].textContent = response.temp;
+        row.cells[2].textContent = response.feels_like;
+        row.cells[3].textContent = response.humidity;
+        row.cells[4].textContent = response.max_temp;
+        row.cells[5].textContent = response.min_temp;
+        row.cells[6].textContent = formatTime(response.sunrise);
+        row.cells[7].textContent = formatTime(response.sunset);
+        row.cells[8].textContent = response.wind_degrees;
+        row.cells[9].textContent = response.wind_speed;
+      })
+      .catch((err) => console.error(err));
+  });
 }
 
 // Fetch weather data for the default cities when the page loads
